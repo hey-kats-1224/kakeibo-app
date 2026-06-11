@@ -1,60 +1,95 @@
 # kakeibo-app
 
-家計簿アプリ。収入・支出の記録・管理を行うフロントエンドアプリケーション。
+レシート読み込み家計簿Webアプリ。レシート画像をアップロードするとClaude APIが自動で内容を読み取り、カテゴリ別に集計してグラフ表示する。
 
 ## 技術スタック
 
-- **HTML5** — 構造・マークアップ
-- **CSS3** — スタイリング・アニメーション
-- **Vanilla JavaScript (ES6+)** — ロジック・DOM操作
-- ビルドツール・フレームワーク不使用（純粋なWeb標準技術のみ）
+### フロントエンド
+- **React 18** — UIフレームワーク
+- **Vite** — ビルドツール・開発サーバー（ポート 5173）
+- **Chart.js / react-chartjs-2** — グラフ描画（円グラフ・棒グラフ）
+- **LocalStorage** — クライアントサイドデータ永続化
+
+### バックエンド
+- **Node.js / Express** — APIサーバー（ポート 3001）
+- **@anthropic-ai/sdk** — Claude API クライアント
+- **multer** — マルチパートファイルアップロード処理
+- **dotenv** — 環境変数管理
+
+### 使用モデル
+- `claude-haiku-4-5`（フルID: `claude-haiku-4-5-20251001`）
 
 ## プロジェクト構成
 
 ```
 kakeibo-app/
-├── index.html        # エントリーポイント
-├── css/
-│   └── style.css     # スタイルシート
-├── js/
-│   └── app.js        # メインロジック
-└── data/
-    └── records.js    # 収支データ（必要に応じて）
+├── .env                    # APIキー（Gitに含めない）
+├── .gitignore
+├── package.json            # ルート（concurrentlyで両サーバー同時起動）
+├── CLAUDE.md
+├── server/
+│   ├── package.json
+│   └── server.js           # Express + Claude API統合
+└── client/
+    ├── package.json
+    ├── vite.config.js       # APIプロキシ設定
+    ├── index.html
+    └── src/
+        ├── main.jsx
+        ├── App.jsx           # メインコンポーネント・状態管理
+        ├── App.css           # スタイルシート
+        ├── components/
+        │   ├── ReceiptUpload.jsx   # 画像アップロードUI
+        │   ├── ExpenseList.jsx     # レシート一覧・明細
+        │   ├── Charts.jsx          # グラフ（円・棒）
+        │   └── CategorySummary.jsx # カテゴリ別集計
+        └── utils/
+            └── storage.js    # LocalStorage操作・集計ユーティリティ
 ```
 
-## 開発・実行方法
-
-ブラウザで `index.html` を直接開くか、ローカルサーバーを使用する。
+## セットアップ
 
 ```bash
-# Python を使う場合
-python -m http.server 8080
+# 依存関係のインストール
+npm run install:all
 
-# Node.js の npx を使う場合
-npx serve .
+# .envにAPIキーを設定
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# 開発サーバー起動（フロントエンド + バックエンド同時起動）
+npm run dev
 ```
 
 ## アプリ仕様
 
-- 収入・支出の登録（金額・カテゴリ・日付・メモ）
-- カテゴリ別集計・月別集計の表示
-- LocalStorage によるデータ永続化
-- 収支バランスのサマリー表示
+- レシート画像（JPG/PNG/WEBP）をアップロードするとClaude APIが内容を解析
+- 読み取った商品名・金額・日付・店舗名を一覧表示
+- カテゴリ別自動分類：食費・日用品・外食・交通費・娯楽・その他
+- Chart.jsでカテゴリ別円グラフ + 月別棒グラフを表示
+- LocalStorageによりリロード後もデータを保持
+- レスポンシブ対応（モバイル・PC両対応）
+
+## API設計
+
+| メソッド | エンドポイント | 内容 |
+|--------|-------------|------|
+| POST | /api/upload | レシート画像を受け取り、Claude APIで解析して構造化データを返す |
+| GET | /api/health | サーバーの稼働確認 |
+
+## 環境変数
+
+| 変数名 | 内容 |
+|-------|------|
+| `ANTHROPIC_API_KEY` | Anthropic APIキー（必須） |
+| `PORT` | サーバーポート番号（デフォルト: 3001） |
 
 ## コーディング規約
 
 - `let` / `const` を使用し `var` は使わない
-- DOM操作は `document.querySelector` / `querySelectorAll` を使用
-- イベントリスナーは `addEventListener` で登録
-- CSSクラスの付け外しで状態管理（`classList.add/remove/toggle`）
-- グローバル変数は最小限に抑え、モジュールパターンまたはクロージャで管理
-- データ操作は純粋関数として切り出す
-
-## 注意事項
-
-- 外部ライブラリ・CDN依存は原則禁止（追加する場合はユーザーに確認）
-- IE非対応、モダンブラウザ（Chrome/Firefox/Safari/Edge最新版）のみサポート
-- レスポンシブ対応必須（モバイル・PC両対応）
+- コメントは日本語で記載
+- ES Modules（`import/export`）を使用
+- フロントエンド：React Hooks（`useState`）で状態管理
+- バックエンド：Express + async/await
 
 ## Git 運用ルール
 
@@ -68,3 +103,5 @@ git add .
 git commit -m "変更内容の説明"
 git push origin main
 ```
+
+リモートリポジトリ: https://github.com/hey-kats-1224/kakeibo-app.git
