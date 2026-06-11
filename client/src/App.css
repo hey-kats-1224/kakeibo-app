@@ -49,6 +49,82 @@ body {
   font-size: 0.95rem;
 }
 
+/* 警告バナー */
+.warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 4px solid;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.warning-negative {
+  background: #FFF8E1;
+  border-color: #F9A825;
+  color: #5D4037;
+}
+
+.warning-duplicate {
+  background: #FBE9E7;
+  border-color: #E64A19;
+  color: #4E342E;
+}
+
+.warning-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warning-message {
+  flex: 1;
+  line-height: 1.5;
+  min-width: 160px;
+}
+
+.warning-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.warning-btn {
+  padding: 4px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.warning-btn:hover {
+  opacity: 0.8;
+}
+
+.warning-btn.confirm {
+  background: #E64A19;
+  color: #fff;
+}
+
+.warning-btn.dismiss {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+}
+
 /* タブナビゲーション */
 .tab-nav {
   display: flex;
